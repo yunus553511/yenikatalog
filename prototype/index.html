@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beymetal Chat Widget</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-background">
+        <div class="line line-1"></div>
+        <div class="line line-2"></div>
+        <div class="line line-3"></div>
+        <div class="line line-4"></div>
+        <div class="diagonal diagonal-1"></div>
+        <div class="diagonal diagonal-2"></div>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-widget-minimized" id="chatMinimized">
+            <div class="chat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="chat-widget-expanded" id="chatExpanded" style="display: none;">
+            <div class="chat-header">
+                <div class="header-content">
+                    <div class="header-logo">
+                        <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
+                            <rect x="10" y="10" width="80" height="80" rx="8" stroke="currentColor" stroke-width="3"/>
+                            <text x="50" y="65" font-size="48" font-weight="bold" fill="currentColor" text-anchor="middle">BM</text>
+                        </svg>
+                    </div>
+                    <div class="header-text">
+                        <h3>Beymetal Asistan</h3>
+                        <p>Profil bilgileri için sorun</p>
+                    </div>
+                </div>
+                <button class="close-btn" id="closeBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message assistant">
+                    <div class="message-content">
+                        Merhaba! Ben Beymetal profil asistanıyım. Size nasıl yardımcı olabilirim?
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Profil kodu veya soru yazın..."
+                    autocomplete="off"
+                />
+                <button class="send-btn" id="sendBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

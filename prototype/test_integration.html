@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #2e5c8a;
+        }
+        .response {
+            margin-top: 10px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Backend Integration Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Queries</h2>
+        <button onclick="testQuery('çap 28')">Test: çap 28</button>
+        <button onclick="testQuery('30x30 kutu')">Test: 30x30 kutu</button>
+        <button onclick="testQuery('AP0002')">Test: AP0002</button>
+        <button onclick="testQuery('boru profilleri')">Test: boru profilleri</button>
+        <button onclick="testQuery('40 a 40 kutu')">Test: 40 a 40 kutu</button>
+        
+        <div id="response" class="response"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Backend Status</h2>
+        <button onclick="checkHealth()">Check Health</button>
+        <div id="health" class="response"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8001/api/chat';
+        const HEALTH_URL = 'http://localhost:8001/api/health';
+        
+        async function testQuery(query) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = '<span class="loading">Loading...</span>';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: query,
+                        conversation_history: []
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `
+<strong>Query:</strong> ${query}
+
+<strong>Response:</strong>
+${data.message}
+
+<strong>Context:</strong> ${data.context.length} profiles
+${data.context.map(c => `  - ${c.code}: ${c.match_reason}`).join('\n')}
+
+<strong>Processing Time:</strong> ${data.processing_time.toFixed(3)}s
+                `;
+                
+            } catch (error) {
+                responseDiv.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+            }
+        }
+        
+        async function checkHealth() {
+            const healthDiv = document.getElementById('health');
+            healthDiv.innerHTML = '<span class="loading">Checking...</span>';
+            
+            try {
+                const response = await fetch(HEALTH_URL);
+                const data = await response.json();
+                
+                healthDiv.innerHTML = `
+<strong>Status:</strong> ${data.status}
+<strong>Profiles:</strong> ${data.profiles_count}
+<strong>Vector DB Ready:</strong> ${data.vector_db_ready}
+<strong>Last Update:</strong> ${data.last_update}
+                `;
+                
+            } catch (error) {
+                healthDiv.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+            }
+        }
+        
+        // Auto-check health on load
+        window.addEventListener('load', checkHealth);
+    </script>
+</body>
+</html>

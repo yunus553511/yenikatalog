@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beymetal Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4a90e2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #2e5c8a;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            color: #2e5c8a;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #4a90e2 0%, #2e5c8a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(74, 144, 226, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .status.loading {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a90e2;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #4a90e2;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Beymetal Admin Panel</h1>
+        <p class="subtitle">Profil verilerini yönetin</p>
+        
+        <!-- Sistem Durumu -->
+        <div class="card">
+            <h2>📊 Sistem Durumu</h2>
+            <button onclick="checkHealth()">Durumu Kontrol Et</button>
+            <div id="healthStatus"></div>
+        </div>
+        
+        <!-- Veri Yenileme -->
+        <div class="card">
+            <h2>🔄 Veri Yenileme</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                Google Drive'daki Excel dosyasını yeniden indir ve profilleri güncelle.
+            </p>
+            <button onclick="refreshData()" id="refreshBtn">
+                📥 Excel Verilerini Yenile
+            </button>
+            <div id="refreshStatus"></div>
+        </div>
+        
+        <a href="index.html" class="back-link">← Ana Sayfaya Dön</a>
+    </div>
+
+    <script>
+        // API URL'i otomatik belirle
+        const BACKEND_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:8001'
+            : 'https://beymetal-backend.onrender.com';
+        
+        // Sistem durumunu kontrol et
+        async function checkHealth() {
+            const statusDiv = document.getElementById('healthStatus');
+            statusDiv.innerHTML = '<div class="status loading">⏳ Kontrol ediliyor...</div>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                
+                const categories = Object.entries(data.categories)
+                    .map(([name, count]) => `<div class="stat-item">
+                        <div class="stat-value">${count}</div>
+                        <div class="stat-label">${name}</div>
+                    </div>`)
+                    .join('');
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ <strong>Sistem Çalışıyor</strong>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${data.profiles_count}</div>
+                            <div class="stat-label">Toplam Profil</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${data.vector_db_ready ? '✓' : '✗'}</div>
+                            <div class="stat-label">Arama Motoru</div>
+                        </div>
+                    </div>
+                    <div class="stats">
+                        ${categories}
+                    </div>
+                    <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                        Son güncelleme: ${new Date(data.last_update).toLocaleString('tr-TR')}
+                    </p>
+                `;
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ <strong>Bağlantı Hatası</strong><br>
+                        ${error.message}<br>
+                        <small>Backend çalışmıyor olabilir.</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // Verileri yenile
+        async function refreshData() {
+            const statusDiv = document.getElementById('refreshStatus');
+            const btn = document.getElementById('refreshBtn');
+            
+            btn.disabled = true;
+            statusDiv.innerHTML = '<div class="status loading">⏳ Yenileniyor... (Bu 30-60 saniye sürebilir)</div>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/refresh-data`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                statusDiv.innerHTML = `
+                    <div class="status success">
+                        ✅ <strong>Başarılı!</strong><br>
+                        📊 ${data.profiles_updated} profil güncellendi<br>
+                        🕐 ${new Date(data.last_update).toLocaleString('tr-TR')}
+                    </div>
+                `;
+                
+                // Sistem durumunu otomatik güncelle
+                setTimeout(checkHealth, 1000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ <strong>Hata!</strong><br>
+                        ${error.message}<br>
+                        <small>Lütfen tekrar deneyin veya backend loglarını kontrol edin.</small>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        // Sayfa yüklendiğinde durumu kontrol et
+        window.addEventListener('load', checkHealth);
+    </script>
+</body>
+</html>
