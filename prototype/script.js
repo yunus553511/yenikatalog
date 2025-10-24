@@ -162,53 +162,8 @@ chatInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Save chat history to localStorage
-function saveChatHistory() {
-    const messages = Array.from(chatMessages.children)
-        .filter(msg => !msg.id || msg.id !== 'typingIndicator')
-        .map(msg => ({
-            role: msg.classList.contains('user') ? 'user' : 'assistant',
-            content: msg.querySelector('.message-content').textContent
-        }));
-    
-    localStorage.setItem('beymetal_chat_history', JSON.stringify(messages));
-}
-
-// Load chat history from localStorage
-function loadChatHistory() {
-    const history = localStorage.getItem('beymetal_chat_history');
-    
-    if (history) {
-        const messages = JSON.parse(history);
-        messages.forEach(msg => {
-            if (msg.role !== 'assistant' || !msg.content.includes('Merhaba! Ben Beymetal')) {
-                addMessage(msg.content, msg.role);
-            }
-        });
-    }
-}
-
-// Auto-save on message
-const originalAddMessage = addMessage;
-addMessage = function(...args) {
-    originalAddMessage.apply(this, args);
-    saveChatHistory();
-};
-
-// Load history on page load
-window.addEventListener('load', loadChatHistory);
-
-// Clear chat history (optional - can be triggered by a button)
-function clearChatHistory() {
-    localStorage.removeItem('beymetal_chat_history');
-    chatMessages.innerHTML = `
-        <div class="message assistant">
-            <div class="message-content">
-                Merhaba! Ben Beymetal profil asistanıyım. Size nasıl yardımcı olabilirim?
-            </div>
-        </div>
-    `;
-}
+// Sayfa yenilendiğinde sohbet geçmişi otomatik temizlenir
+// localStorage kullanılmıyor - her seferinde temiz başlangıç
 
 // Add more animated lines dynamically
 function addDynamicLines() {
