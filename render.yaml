@@ -1,41 +1,29 @@
-# Render.com Blueprint
-# Hem backend hem frontend'i tek seferde deploy eder
-
 services:
   # Backend API (Python FastAPI)
   - type: web
     name: beymetal-backend
-    runtime: python
-    region: frankfurt  # Türkiye'ye en yakın
+    env: python
+    region: frankfurt
     plan: free
-    rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GOOGLE_DRIVE_FILE_ID
         value: 1RcUAmXf7VNqzh7Pv1Zo8zoQ7zuf2_t3FJXkT_tCLixw
       - key: CORS_ORIGINS
-        value: "*"  # Tüm origin'lere izin (güvenli değil ama başlangıç için ok)
+        value: "*"
       - key: RAG_SIMILARITY_THRESHOLD
         value: "0.15"
-      - key: APP_PORT
-        sync: false  # Render otomatik PORT verir
+      - key: PYTHON_VERSION
+        value: "3.11.0"
     healthCheckPath: /api/health
+    rootDir: backend
 
   # Frontend (Static Site)
   - type: web
     name: beymetal-frontend
-    runtime: static
+    env: static
     region: frankfurt
     plan: free
-    staticPublishPath: ./prototype
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: BACKEND_URL
-        fromService:
-          type: web
-          name: beymetal-backend
-          property: host
+    buildCommand: echo "No build needed"
+    staticPublishPath: prototype
