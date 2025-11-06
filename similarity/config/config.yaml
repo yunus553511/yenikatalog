@@ -2,7 +2,7 @@
 
 # Paths
 paths:
-  image_directory: "C:/Users/yunus.hezer/Desktop/YENİ BENZERLİK/YENİPNGLER-20251030T075723Z-1-001/YENİPNGLER"
+  image_directory: ""  # Set via IMAGE_DIR environment variable on Render
   faiss_index_path: "./data/faiss_index.bin"
   metadata_path: "./data/profile_metadata.json"
 
