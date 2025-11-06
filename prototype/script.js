@@ -263,7 +263,7 @@ function getProfileImageUrl(profileCode) {
     const apiUrl = window.location.hostname === 'localhost' 
         ? 'http://localhost:8001' 
         : 'https://katalog-zvb2.onrender.com';
-    return `${apiUrl}/api/profile/${profileCode}/image`;
+    return `${apiUrl}/api/profile-image/${profileCode}`;
 }
 
 // Görsel modal'ını göster
@@ -1004,7 +1004,7 @@ class ConnectionSidebar {
                     <div class="profile-parts-grid">
                         <div class="profile-part-card" data-profile-code="${profile.connection_code}">
                             <div class="profile-part-image">
-                                <img src="${apiUrl}/api/profile/${profile.connection_code}/image" 
+                                <img src="${apiUrl}/api/profile-image/${profile.connection_code}" 
                                      alt="${profile.connection_code}"
                                      onerror="this.style.display='none'">
                             </div>
@@ -1020,7 +1020,7 @@ class ConnectionSidebar {
                         ${parts.map(part => `
                             <div class="profile-part-card" data-profile-code="${part.code}">
                                 <div class="profile-part-image">
-                                    <img src="${apiUrl}/api/profile/${part.code}/image" 
+                                    <img src="${apiUrl}/api/profile-image/${part.code}" 
                                          alt="${part.code}"
                                          onerror="this.style.display='none'">
                                 </div>
