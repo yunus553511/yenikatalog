@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:8004';
+const API_BASE_URL = 'https://katalog-zvb2.onrender.com';
 
 // DOM Elements
 const chatWidget = document.getElementById('chatWidget');
