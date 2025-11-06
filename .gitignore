@@ -25,6 +25,15 @@ backend/data/cache/
 backend/data/embeddings/
 *.pkl
 
+# Images (stored in Supabase)
+backend/data/images/
+backend/data/cache/images/
+*.png
+*.jpg
+*.jpeg
+!prototype/*.png
+!prototype/*.jpg
+
 # Logs
 *.log
 

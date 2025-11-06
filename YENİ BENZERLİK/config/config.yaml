@@ -1,0 +1,30 @@
+# Aluminum Profile Similarity System Configuration
+
+# Paths
+paths:
+  image_directory: "C:/Users/yunus.hezer/Desktop/YENİ BENZERLİK/YENİPNGLER-20251030T075723Z-1-001/YENİPNGLER"
+  faiss_index_path: "./data/faiss_index.bin"
+  metadata_path: "./data/profile_metadata.json"
+
+# Model settings
+model:
+  ai_model: "resnet50"  # Single model for testing (ensemble available)
+  ai_weight: 0.3  # AI embedding weight (visual similarity)
+  geo_weight: 0.7  # Geometric features weight (shape similarity) - DOMINANT for inner contours
+  device: "cpu"  # CPU mode (GPU requires Python 3.11/3.12)
+
+# API settings
+api:
+  host: "0.0.0.0"
+  port: 8003
+  top_k_results: 30
+
+# Processing settings
+processing:
+  batch_size: 64  # Increased for better CPU utilization
+  num_workers: 8  # Increased to use more CPU cores
+
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "[%(asctime)s] %(levelname)s - %(message)s"

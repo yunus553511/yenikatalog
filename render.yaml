@@ -1,29 +1,24 @@
 services:
-  # Backend API (Python FastAPI)
+  # Backend API
   - type: web
-    name: beymetal-backend
-    env: python
-    region: frankfurt
-    plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    name: aluna-backend
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: GOOGLE_DRIVE_FILE_ID
-        value: 1RcUAmXf7VNqzh7Pv1Zo8zoQ7zuf2_t3FJXkT_tCLixw
-      - key: CORS_ORIGINS
-        value: "*"
-      - key: RAG_SIMILARITY_THRESHOLD
-        value: "0.15"
+      - key: GROQ_API_KEY
+        sync: false
       - key: PYTHON_VERSION
-        value: "3.11.0"
-    healthCheckPath: /api/health
-    rootDir: backend
+        value: 3.11.0
+    healthCheckPath: /health
 
-  # Frontend (Static Site)
+  # Frontend Static Site
   - type: web
-    name: beymetal-frontend
-    env: static
-    region: frankfurt
-    plan: free
+    name: aluna-frontend
+    runtime: static
     buildCommand: echo "No build needed"
-    staticPublishPath: prototype
+    staticPublishPath: ./prototype
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

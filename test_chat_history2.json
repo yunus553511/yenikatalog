@@ -1,0 +1,13 @@
+{
+  "message": "bu profilin agirligini soyler misin?",
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "cap 28 profil nedir?"
+    },
+    {
+      "role": "assistant",
+      "content": "AP0002 profilini buldum. Kategori: STANDART BORU, Olculer: Cap = 28.0mm, Kalinlik = 1.0mm"
+    }
+  ]
+}

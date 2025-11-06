@@ -1,11 +1,22 @@
-# 🚀 Render.com'a Tek Seferde Deployment
+# 🚀 Render.com'a İki Ayrı Servis ile Deployment
 
-## Neden Render.com?
-- ✅ Backend + Frontend aynı yerde
-- ✅ Ücretsiz tier (750 saat/ay)
-- ✅ Otomatik HTTPS
-- ✅ GitHub entegrasyonu
-- ✅ Kolay yönetim
+## ⚠️ ÖNEMLİ: İki Ayrı API Var!
+Bu projede **2 ayrı backend servisi** var:
+1. **Ana Backend** (Chat, Catalog, vb.) - Port 8004
+2. **Benzerlik API** (Similarity Search) - Port 8003
+
+## Deployment Stratejisi
+İki seçenek var:
+
+### 🎯 Seçenek 1: İki Ayrı Render Service (Önerilen)
+- Ana Backend → Render Web Service
+- Benzerlik API → Ayrı Render Web Service
+- Frontend → Render Static Site
+
+### 🔧 Seçenek 2: Tek Container (Docker)
+- Tüm servisler bir Docker image'da
+- Nginx reverse proxy
+- Daha karmaşık ama tek URL
 
 ---
 
@@ -83,38 +94,75 @@ Deploy tamamlandıktan sonra:
 
 ---
 
-## 🔧 Manuel Deployment (Alternatif)
+## 🔧 Seçenek 1: İki Ayrı Render Service (Önerilen)
 
-Blueprint kullanmak istemezseniz:
+### 1️⃣ Ana Backend Deploy
 
-### Backend Deploy
 1. **"New +"** → **"Web Service"**
 2. GitHub repo seç
 3. Ayarlar:
-   - **Name:** beymetal-backend
+   - **Name:** `beymetal-backend`
    - **Runtime:** Python 3
-   - **Build Command:** `cd backend && pip install -r requirements.txt`
-   - **Start Command:** `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - **Root Directory:** `backend`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
    - **Plan:** Free
 
 4. **Environment Variables** ekle:
    ```
+   PORT=8004
    GOOGLE_DRIVE_FILE_ID=1RcUAmXf7VNqzh7Pv1Zo8zoQ7zuf2_t3FJXkT_tCLixw
    CORS_ORIGINS=*
-   RAG_SIMILARITY_THRESHOLD=0.15
+   SUPABASE_URL=https://your-project.supabase.co
+   SIMILARITY_API_URL=https://beymetal-similarity.onrender.com
    ```
 
-5. **Create Web Service**
+5. **Create Web Service** → URL'i kopyala (örn: `https://beymetal-backend.onrender.com`)
 
-### Frontend Deploy
+### 2️⃣ Benzerlik API Deploy
+
+1. **"New +"** → **"Web Service"**
+2. Aynı GitHub repo seç
+3. Ayarlar:
+   - **Name:** `beymetal-similarity`
+   - **Runtime:** Python 3
+   - **Root Directory:** `YENİ BENZERLİK`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `python main.py`
+   - **Plan:** Free (veya Starter $7/ay - daha hızlı)
+
+4. **Environment Variables** ekle:
+   ```
+   PORT=8003
+   IMAGE_DIR=/opt/render/project/src/YENİPNGLER
+   ```
+
+5. **Create Web Service** → URL'i kopyala (örn: `https://beymetal-similarity.onrender.com`)
+
+### 3️⃣ Frontend Deploy
+
 1. **"New +"** → **"Static Site"**
 2. GitHub repo seç
 3. Ayarlar:
-   - **Name:** beymetal-frontend
+   - **Name:** `beymetal-frontend`
    - **Build Command:** (boş bırak)
    - **Publish Directory:** `prototype`
 
 4. **Create Static Site**
+
+### 4️⃣ URL'leri Bağla
+
+Ana backend'in environment variables'ına dön ve güncelle:
+```
+SIMILARITY_API_URL=https://beymetal-similarity.onrender.com
+```
+
+Frontend'in `script.js`'ini güncelle:
+```javascript
+const API_BASE_URL = 'https://beymetal-backend.onrender.com';
+```
+
+GitHub'a push et → Otomatik deploy!
 
 ---
 

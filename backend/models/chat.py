@@ -11,16 +11,20 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     """Chat isteği"""
     message: str = Field(..., description="Kullanıcı mesajı")
-    conversation_history: Optional[List[ChatMessage]] = Field(
-        default=[],
-        description="Konuşma geçmişi (opsiyonel)"
+    conversation_history: Optional[List[Dict]] = Field(
+        default=None,
+        description="Önceki konuşma geçmişi (OpenAI format)"
     )
     
     class Config:
         json_schema_extra = {
             "example": {
                 "message": "çap 28 profil nedir?",
-                "conversation_history": []
+                "conversation_history": [
+                    {"role": "system", "content": "Sen ALUNA..."},
+                    {"role": "user", "content": "30x30 kutu profil"},
+                    {"role": "assistant", "content": "AP0123 buldum..."}
+                ]
             }
         }
 
@@ -36,21 +40,35 @@ class ProfileContext(BaseModel):
 class ChatResponse(BaseModel):
     """Chat cevabı"""
     message: str = Field(..., description="Asistan cevabı")
-    context: List[ProfileContext] = Field(..., description="Kullanılan profiller")
+    conversation_history: List[Dict] = Field(
+        ...,
+        description="Güncellenmiş conversation history (frontend'e geri gönderilir)"
+    )
     processing_time: float = Field(..., description="İşlem süresi (saniye)")
+    metadata: Optional[Dict] = Field(
+        default=None,
+        description="LLM kullanım metadata'sı"
+    )
+    profile_data: Optional[List[Dict]] = Field(
+        default=None,
+        description="Profil verileri (load more için)"
+    )
     
     class Config:
         json_schema_extra = {
             "example": {
                 "message": "AP0002 profilini buldum...",
-                "context": [
-                    {
-                        "code": "AP0002",
-                        "category": "STANDART BORU",
-                        "dimensions": {"Ø": 28.0, "K": 1.0},
-                        "match_reason": "Çap: 28.0mm"
-                    }
+                "conversation_history": [
+                    {"role": "system", "content": "Sen ALUNA..."},
+                    {"role": "user", "content": "çap 28 profil"},
+                    {"role": "assistant", "content": "AP0002 profilini buldum..."}
                 ],
-                "processing_time": 0.123
+                "processing_time": 0.123,
+                "metadata": {
+                    "llm_used": True,
+                    "tokens_used": 234,
+                    "model": "llama-3.3-70b-versatile",
+                    "tool_calls_made": 1
+                }
             }
         }

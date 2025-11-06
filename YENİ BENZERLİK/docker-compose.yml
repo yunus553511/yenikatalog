@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  similarity-api:
+    build: .
+    container_name: aluminum-profile-similarity
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount image directory (update path to your images)
+      - "C:/Users/yunus.hezer/Desktop/YENİ BENZERLİK/YENİPNGLER-20251030T075723Z-1-001/YENİPNGLER:/images:ro"
+      # Mount data directory for persistence
+      - "./data:/app/data"
+    environment:
+      - IMAGE_DIRECTORY=/images
+      - FAISS_INDEX_PATH=/app/data/faiss_index.bin
+      - METADATA_PATH=/app/data/profile_metadata.json
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - LOG_LEVEL=INFO
+    restart: unless-stopped

@@ -9,11 +9,26 @@ from services.embedding_service import embedding_service
 logger = logging.getLogger(__name__)
 
 
+def matches_category_filter(profile_category: str, category_filter: str) -> bool:
+    """
+    Kategori filtresinin profile kategorisiyle eşleşip eşleşmediğini kontrol et
+    Kelime sınırı kontrolü yapar - "T" "STANDART" içinde geçmez
+    """
+    if not category_filter:
+        return True
+    
+    # Kategoriyi kelimelere ayır
+    category_words = profile_category.split()
+    return category_filter in category_words
+
+
 def get_category_filter(query_lower: str) -> Optional[str]:
     """
     Sorgudan kategori filtresini çıkar
     Öncelik sırasına dikkat! (uzun kelimeler önce)
     """
+    import re
+    
     if 'köşebent' in query_lower or 'kosebent' in query_lower:
         return 'KÖŞEBENT'
     elif 't profil' in query_lower or 't tipi' in query_lower:
@@ -24,6 +39,17 @@ def get_category_filter(query_lower: str) -> Optional[str]:
         return 'KUTU'
     elif 'lama' in query_lower:
         return 'LAMA'
+    
+    # Tek harf kontrolü - sorgunun sonunda tek harf varsa
+    # Örn: "50 ye 50 t", "30 a 30 u", "40x40 l"
+    words = query_lower.strip().split()
+    if len(words) > 0:
+        last_word = words[-1].strip()
+        # Son kelime tek harfse ve şekilsel kategori harfiyse
+        if len(last_word) == 1 and last_word.upper() in ['T', 'U', 'L', 'C', 'H', 'V', 'S', 'F', 'D', 'M', 'K', 'R', 'E']:
+            logger.info(f"Tek harf kategori bulundu (son kelime): {last_word.upper()}")
+            return last_word.upper()
+    
     return None
 
 
@@ -104,7 +130,7 @@ class SearchService:
             logger.info(f"Kategori filtresi: {category_filter}")
             
             for profile in excel_service.get_profiles():
-                if category_filter and category_filter not in profile.category:
+                if not matches_category_filter(profile.category, category_filter):
                     continue
                 
                 if 'A' in profile.dimensions and 'B' in profile.dimensions:
@@ -117,18 +143,22 @@ class SearchService:
                             reason += f", Kalınlık: {profile.dimensions['K']}mm"
                         results.append((profile, 1.0, reason))
         
-        # "A a B" formatı (30 a 30, 40 a 50 gibi)
-        aab_match = re.search(r'(\d+(?:\.\d+)?)\s*[aA]\s*(\d+(?:\.\d+)?)', query_lower)
+        # "A a B", "A ye B", "A e B" formatı (30 a 30, 20 ye 20, 40 e 50 gibi)
+        # Tüm bağlaçları destekle: a, ye, e, ya
+        aab_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:[aA]|ye|YE|[eE]|ya|YA)\s*(\d+(?:\.\d+)?)', query_lower)
+        aab_search_attempted = False  # Flag to prevent single number search
+        
         if aab_match and not axb_match:
+            aab_search_attempted = True  # Mark that we attempted AxB search
             a_value = float(aab_match.group(1))
             b_value = float(aab_match.group(2))
-            logger.info(f"A a B araması: A={a_value}, B={b_value}")
+            logger.info(f"A [bağlaç] B araması: A={a_value}, B={b_value}")
             
             category_filter = get_category_filter(query_lower)
             logger.info(f"Kategori filtresi: {category_filter}")
             
             for profile in excel_service.get_profiles():
-                if category_filter and category_filter not in profile.category:
+                if not matches_category_filter(profile.category, category_filter):
                     continue
                 
                 if 'A' in profile.dimensions and 'B' in profile.dimensions:
@@ -170,7 +200,7 @@ class SearchService:
             
             for profile in excel_service.get_profiles():
                 # Kategori filtresi varsa kontrol et
-                if category_filter and category_filter not in profile.category:
+                if not matches_category_filter(profile.category, category_filter):
                     continue
                 
                 if 'K' in profile.dimensions:
@@ -183,8 +213,9 @@ class SearchService:
                         results.append((profile, 1.0, reason))
         
         # Tek sayı (örn: "30 profil", "40 kutu")
+        # SADECE AxB araması yapılmadıysa çalıştır
         single_num_match = re.search(r'\b(\d+(?:\.\d+)?)\b', query_lower)
-        if single_num_match and not results:
+        if single_num_match and not results and not aab_search_attempted and not axb_match:
             value = float(single_num_match.group(1))
             category_filter = get_category_filter(query_lower)
             
@@ -192,7 +223,7 @@ class SearchService:
                 logger.info(f"{category_filter} profil araması: A veya B = {value}")
                 
                 for profile in excel_service.get_profiles():
-                    if category_filter not in profile.category:
+                    if not matches_category_filter(profile.category, category_filter):
                         continue
                     
                     if 'A' in profile.dimensions and 'B' in profile.dimensions:
@@ -236,7 +267,8 @@ class SearchService:
             'u profil': 'STANDART U',
             'lama': 'STANDART LAMA',
             'köşebent': 'STANDART KÖŞEBENT',
-            'kosebent': 'STANDART KÖŞEBENT'
+            'kosebent': 'STANDART KÖŞEBENT',
+            'pervaz': 'SEKTÖREL PERVAZ'
         }
         
         for keyword, category in category_map.items():
@@ -244,7 +276,8 @@ class SearchService:
                 profiles = excel_service.get_profiles_by_category(category)
                 if profiles:
                     results = []
-                    for profile in profiles[:10]:
+                    # Return all profiles (will be limited by top_k in search())
+                    for profile in profiles:
                         dims_str = ", ".join([f"{k}={v}mm" for k, v in profile.dimensions.items()])
                         reason = f"{category} ({dims_str})"
                         results.append((profile, 0.9, reason))

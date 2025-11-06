@@ -1,23 +1,37 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 from models.profile import Profile
 
 
-def format_profile_for_display(profile: Profile) -> str:
+def format_profile_for_display(profile: Union[Profile, Dict]) -> str:
     """
     Profili kullanıcıya gösterilmek üzere formatlar
+    Hem Profile nesnelerini hem de dict'leri destekler
     
     Args:
-        profile: Profile nesnesi
+        profile: Profile nesnesi veya dict
         
     Returns:
         Formatlanmış text
     """
-    dims = "\n".join([f"  • {k}: {v} mm" for k, v in profile.dimensions.items()])
+    # Profile nesnesi mi dict mi?
+    if hasattr(profile, 'code'):
+        # Profile nesnesi
+        code = profile.code
+        category = profile.category
+        dimensions = profile.dimensions
+    else:
+        # Dict formatı
+        code = profile.get('code', profile.get('profile_no', 'N/A'))
+        category = profile.get('category', ', '.join(profile.get('categories', [])))
+        dimensions = profile.get('dimensions', {})
     
-    return (
-        f"**{profile.code}** - {profile.category}\n"
-        f"Ölçüler:\n{dims}"
-    )
+    # Ölçüler varsa göster
+    if dimensions:
+        dims = "\n".join([f"  • {k}: {v} mm" for k, v in dimensions.items()])
+        return f"**{code}** - {category}\nÖlçüler:\n{dims}"
+    else:
+        # Katalog profili - ölçü yok
+        return f"**{code}** - {category}"
 
 
 def format_profiles_for_context(profiles: List[Profile]) -> str:

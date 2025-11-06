@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ALUNA - Beymetal Profil Asistanı</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- Animated Background -->
     <div class="animated-background">
@@ -15,6 +17,41 @@
         <div class="line line-4"></div>
         <div class="diagonal diagonal-1"></div>
         <div class="diagonal diagonal-2"></div>
+    </div>
+
+    <!-- Header with Logos -->
+    <header class="main-header">
+        <div class="logo-container">
+            <div class="logo-wrapper linearossa-logo">
+                <img src="LINEAROSSA.png" alt="Linearossa Logo">
+            </div>
+            <div class="logo-wrapper beymetal-logo">
+                <img src="BEYMETAL.png" alt="Beymetal Logo">
+            </div>
+            <div class="logo-wrapper alfore-logo">
+                <img src="ALFORE.png" alt="Alfore Logo">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content with Sidebar -->
+    <div class="content-container">
+        <!-- Connection Systems Sidebar -->
+        <aside class="connection-systems-sidebar" id="connectionSidebar">
+            <div class="systems-content" id="sidebarContent">
+                <div class="loading">Yükleniyor...</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- Category Sections -->
+                <div class="category-sections" id="categorySections">
+                    <div class="loading">Kategoriler yükleniyor...</div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- Chat Widget -->
@@ -31,28 +68,35 @@
             <div class="chat-header">
                 <div class="header-content">
                     <div class="header-logo">
-                        <svg width="32" height="32" viewBox="0 0 100 100" fill="none">
-                            <rect x="10" y="10" width="80" height="80" rx="8" stroke="currentColor" stroke-width="3"/>
-                            <text x="50" y="65" font-size="48" font-weight="bold" fill="currentColor" text-anchor="middle">BM</text>
-                        </svg>
+                        <img src="ALUNA.png" alt="ALUNA Logo" class="aluna-chat-logo">
                     </div>
                     <div class="header-text">
                         <h3>ALUNA</h3>
                         <p>Alüminyum Profil Asistanı</p>
                     </div>
                 </div>
-                <button class="close-btn" id="closeBtn">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
+                <div class="header-actions">
+                    <button class="reset-btn" id="resetBtn" title="Yeni Konuşma">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                    </button>
+                    <button class="close-btn" id="closeBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div class="chat-messages" id="chatMessages">
                 <div class="message assistant">
                     <div class="message-content">
-                        Merhaba! Ben ALUNA, Beymetal'in alüminyum profil asistanıyım. 
+                        Merhaba! Ben ALUNA, Beymetal'in alüminyum profil asistanıyım.
                         Standart profilleri ölçü, kategori ve kalınlık bilgilerine göre arayabilirsiniz.
                         <br><br>
                         <strong>Örnek aramalar:</strong><br>
@@ -65,13 +109,8 @@
             </div>
 
             <div class="chat-input-container">
-                <input 
-                    type="text" 
-                    class="chat-input" 
-                    id="chatInput" 
-                    placeholder="Profil kodu veya soru yazın..."
-                    autocomplete="off"
-                />
+                <input type="text" class="chat-input" id="chatInput" placeholder="Profil kodu veya soru yazın..."
+                    autocomplete="off" />
                 <button class="send-btn" id="sendBtn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -82,6 +121,101 @@
         </div>
     </div>
 
+    <!-- System Detail Modal -->
+    <div class="system-modal" id="systemModal" style="display: none;">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalSystemName">Sistem Detayları</h2>
+                <button class="modal-close" id="modalClose">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading">Yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Systems Sticky Button (Mobile/Tablet Only) -->
+    <div class="systems-sticky-btn" id="systemsBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        <span>Sistemler</span>
+    </div>
+
+    <!-- Similarity Search Sticky Button -->
+    <div class="similarity-sticky-btn" id="similarityBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <span>Benzerlik Ara</span>
+    </div>
+
+    <!-- Connection Systems Modal (Mobile/Tablet Only) -->
+    <div class="systems-modal" id="systemsModal" style="display: none;">
+        <div class="systems-modal-overlay" id="systemsOverlay"></div>
+        <div class="systems-modal-content">
+            <div class="systems-modal-header">
+                <h2>Sistemler</h2>
+                <button class="systems-modal-close" id="systemsClose">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="systems-modal-body" id="systemsModalContent">
+                <div class="loading">Sistemler yükleniyor...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Similarity Search Modal -->
+    <div class="similarity-modal" id="similarityModal" style="display: none;">
+        <div class="similarity-modal-overlay" id="similarityOverlay"></div>
+        <div class="similarity-modal-content">
+            <div class="similarity-modal-header">
+                <h2>🔍 Benzer Profil Ara</h2>
+                <button class="similarity-modal-close" id="similarityClose">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="similarity-search-box">
+                <input type="text" id="similarityInput" placeholder="Profil kodu girin (ör: LR3104, GL3100)" />
+                <input type="number" id="similarityCount" placeholder="Kaç tane?" value="30" min="1" max="100" />
+                <button id="similaritySearchBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    Ara
+                </button>
+            </div>
+            <div class="similarity-results" id="similarityResults">
+                <div class="similarity-placeholder">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <p>Benzer profil aramak için yukarıya profil kodu girin</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
+
 </html>
