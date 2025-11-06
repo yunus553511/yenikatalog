@@ -130,7 +130,7 @@ class Config:
         load_dotenv()
         
         return cls(
-            image_directory=os.getenv('IMAGE_DIRECTORY', ''),
+            image_directory=os.getenv('IMAGE_DIRECTORY') or os.getenv('IMAGE_DIR', ''),
             faiss_index_path=os.getenv('FAISS_INDEX_PATH', './data/faiss_index.bin'),
             metadata_path=os.getenv('METADATA_PATH', './data/profile_metadata.json'),
             ai_model=os.getenv('AI_MODEL', 'resnet18'),  # Default to resnet18 for low memory
@@ -166,8 +166,11 @@ class Config:
         # Override with environment variables (highest priority)
         load_dotenv()
         
+        # Support both IMAGE_DIRECTORY and IMAGE_DIR for flexibility
         if os.getenv('IMAGE_DIRECTORY'):
             config.image_directory = os.getenv('IMAGE_DIRECTORY')
+        elif os.getenv('IMAGE_DIR'):
+            config.image_directory = os.getenv('IMAGE_DIR')
         if os.getenv('FAISS_INDEX_PATH'):
             config.faiss_index_path = os.getenv('FAISS_INDEX_PATH')
         if os.getenv('METADATA_PATH'):
