@@ -17,7 +17,7 @@ class Config:
     metadata_path: str = "./data/profile_metadata.json"
     
     # Model settings
-    ai_model: str = "resnet18"  # Options: "resnet18", "resnet50", "ensemble" - resnet18 for low memory
+    ai_model: str = "resnet50"  # Options: "resnet18", "resnet50", "ensemble" - resnet50 for best accuracy
     ai_weight: float = 0.3  # Reduced from 0.7 - technical drawings need more geometry
     geo_weight: float = 0.7  # Increased from 0.3 - geometry is more important for profiles
     device: str = "cpu"
@@ -98,7 +98,7 @@ class Config:
             config_dict['metadata_path'] = data['paths'].get('metadata_path', './data/profile_metadata.json')
         
         if 'model' in data:
-            config_dict['ai_model'] = data['model'].get('ai_model', 'resnet18')
+            config_dict['ai_model'] = data['model'].get('ai_model', 'resnet50')
             config_dict['ai_weight'] = data['model'].get('ai_weight', 0.3)
             config_dict['geo_weight'] = data['model'].get('geo_weight', 0.7)
             config_dict['device'] = data['model'].get('device', 'cpu')
@@ -133,7 +133,7 @@ class Config:
             image_directory=os.getenv('IMAGE_DIRECTORY') or os.getenv('IMAGE_DIR', ''),
             faiss_index_path=os.getenv('FAISS_INDEX_PATH', './data/faiss_index.bin'),
             metadata_path=os.getenv('METADATA_PATH', './data/profile_metadata.json'),
-            ai_model=os.getenv('AI_MODEL', 'resnet18'),  # Default to resnet18 for low memory
+            ai_model=os.getenv('AI_MODEL', 'resnet50'),  # Default to resnet50 for best accuracy
             ai_weight=float(os.getenv('AI_WEIGHT', '0.3')),
             geo_weight=float(os.getenv('GEO_WEIGHT', '0.7')),
             device=os.getenv('DEVICE', 'cpu'),

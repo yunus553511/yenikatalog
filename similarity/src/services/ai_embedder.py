@@ -75,14 +75,6 @@ class AIEmbedder:
             self.models = [self.model]
             self.embedding_dims = [2048]
             self.total_dims = 2048
-        elif model_name == "resnet18":
-            base_model = models.resnet18(pretrained=True)
-            self.model = nn.Sequential(*list(base_model.children())[:-1])
-            self.model.to(self.device)
-            self.model.eval()
-            self.models = [self.model]
-            self.embedding_dims = [512]  # ResNet18 outputs 512-dim features
-            self.total_dims = 512
         else:
             raise ValueError(f"Unsupported model: {model_name}")
         

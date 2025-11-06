@@ -8,7 +8,7 @@ paths:
 
 # Model settings
 model:
-  ai_model: "resnet18"  # Lightweight model for low memory (resnet50 for better accuracy)
+  ai_model: "resnet50"  # ResNet50 for best accuracy (requires 2GB+ RAM)
   ai_weight: 0.3  # AI embedding weight (visual similarity)
   geo_weight: 0.7  # Geometric features weight (shape similarity) - DOMINANT for inner contours
   device: "cpu"  # CPU mode (GPU requires Python 3.11/3.12)
@@ -16,7 +16,7 @@ model:
 # API settings
 api:
   host: "0.0.0.0"
-  port: 8003
+  port: 8000
   top_k_results: 30
 
 # Processing settings
