@@ -260,11 +260,10 @@ function loadMoreProfiles(messageId) {
 
 // Profil görsel URL'ini oluştur
 function getProfileImageUrl(profileCode) {
-    if (window.location.hostname === 'localhost') {
-        return `http://localhost:8002/api/profile-image/${profileCode}`;
-    } else {
-        return `https://beymetal-backend.onrender.com/api/profile-image/${profileCode}`;
-    }
+    const apiUrl = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8001' 
+        : 'https://katalog-zvb2.onrender.com';
+    return `${apiUrl}/api/profile/${profileCode}/image`;
 }
 
 // Görsel modal'ını göster
@@ -901,7 +900,7 @@ class ConnectionSidebar {
         // API URL'ini belirle
         const apiUrl = window.location.hostname === 'localhost' 
             ? 'http://localhost:8001' 
-            : 'https://beymetal-backend.onrender.com';
+            : 'https://katalog-zvb2.onrender.com';
         
         for (const card of profileCards) {
             const profileCode = card.getAttribute('data-profile-code');
@@ -993,7 +992,7 @@ class ConnectionSidebar {
         // API URL'ini belirle
         const apiUrl = window.location.hostname === 'localhost' 
             ? 'http://localhost:8001' 
-            : 'https://beymetal-backend.onrender.com';
+            : 'https://katalog-zvb2.onrender.com';
         
         return `
             <div class="profile-connection-item">
@@ -1005,7 +1004,7 @@ class ConnectionSidebar {
                     <div class="profile-parts-grid">
                         <div class="profile-part-card" data-profile-code="${profile.connection_code}">
                             <div class="profile-part-image">
-                                <img src="${apiUrl}/api/profile-image/${profile.connection_code}" 
+                                <img src="${apiUrl}/api/profile/${profile.connection_code}/image" 
                                      alt="${profile.connection_code}"
                                      onerror="this.style.display='none'">
                             </div>
@@ -1021,7 +1020,7 @@ class ConnectionSidebar {
                         ${parts.map(part => `
                             <div class="profile-part-card" data-profile-code="${part.code}">
                                 <div class="profile-part-image">
-                                    <img src="${apiUrl}/api/profile-image/${part.code}" 
+                                    <img src="${apiUrl}/api/profile/${part.code}/image" 
                                          alt="${part.code}"
                                          onerror="this.style.display='none'">
                                 </div>
