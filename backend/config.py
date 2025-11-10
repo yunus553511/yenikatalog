@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     
     # Groq LLM Configuration
     groq_api_key: str = ""
-    groq_model: str = "llama3-groq-70b-8192-tool-use-preview"  # Function calling için optimize edilmiş model
+    groq_model: str = "llama-3.3-70b-versatile"  # Yeni model - function calling destekli
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_timeout: int = 10
     groq_temperature: float = 0.7
