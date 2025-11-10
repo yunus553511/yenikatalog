@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     # Similarity API Configuration
     similarity_api_url: str = "http://localhost:8003"  # Benzerlik API URL'i
     
+    # Backend URL for image links (used in chat responses)
+    backend_url: str = "http://localhost:8001"  # Production'da Render URL olacak
+    
     class Config:
         env_file = ".env"
         case_sensitive = False

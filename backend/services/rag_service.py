@@ -8,6 +8,7 @@ from utils.text_formatter import (
     create_system_prompt,
     create_user_prompt
 )
+from config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -296,7 +297,7 @@ class RAGService:
                         
                         if cat_profile:
                             categories = ', '.join(cat_profile.get('categories', []))
-                            image_url = f"http://localhost:8001/api/profile-image/{code}"
+                            image_url = f"{settings.backend_url}/api/profile-image/{code}"
                             profiles_info.append({
                                 'code': code,
                                 'categories': categories,
@@ -381,7 +382,7 @@ class RAGService:
                             for i, prof in enumerate(profile_variants, 1):
                                 code = prof.get('code')
                                 categories = ', '.join(prof.get('categories', []))
-                                image_url = f"http://localhost:8001/api/profile-image/{code}"
+                                image_url = f"{settings.backend_url}/api/profile-image/{code}"
                                 
                                 answer_parts.append(f"\n**{i}. {code}**")
                                 answer_parts.append(f"![{code}]({image_url})")
@@ -497,15 +498,15 @@ class RAGService:
         if profile.get('inner_profile'):
             inner_code = profile['inner_profile']
             context_parts.append(f"**İç Profil:** {inner_code}")
-            context_parts.append(f"![{inner_code}](http://localhost:8001/api/profile-image/{inner_code})")
+            context_parts.append(f"![{inner_code}]({settings.backend_url}/api/profile-image/{inner_code})")
         if profile.get('middle_profile'):
             middle_code = profile['middle_profile']
             context_parts.append(f"**Orta Profil:** {middle_code}")
-            context_parts.append(f"![{middle_code}](http://localhost:8001/api/profile-image/{middle_code})")
+            context_parts.append(f"![{middle_code}]({settings.backend_url}/api/profile-image/{middle_code})")
         if profile.get('outer_profile'):
             outer_code = profile['outer_profile']
             context_parts.append(f"**Dış Profil:** {outer_code}")
-            context_parts.append(f"![{outer_code}](http://localhost:8001/api/profile-image/{outer_code})")
+            context_parts.append(f"![{outer_code}]({settings.backend_url}/api/profile-image/{outer_code})")
         
         # Fitiller
         gaskets = profile.get('gaskets', {})
@@ -1074,7 +1075,7 @@ class RAGService:
                     system_info += f"• Birleşen Profiller: {', '.join(profiles)}\n"
             
             # Profil görseli ekle
-            image_url = f"http://localhost:8001/api/profile-image/{profile.code}"
+            image_url = f"{settings.backend_url}/api/profile-image/{profile.code}"
             answer_parts.append(
                 f"**{profile.code}** profilini buldum:\n\n"
                 f"![{profile.code}]({image_url})\n\n"
@@ -1114,7 +1115,7 @@ class RAGService:
                     connection_lines += "\n"
                 
                 # Profil görseli ekle
-                image_url = f"http://localhost:8001/api/profile-image/{profile.code}"
+                image_url = f"{settings.backend_url}/api/profile-image/{profile.code}"
                 answer_parts.append(
                     f"\n**{i}. {profile.code}** - {profile.category}\n"
                     f"![{profile.code}]({image_url})\n"
@@ -1266,7 +1267,7 @@ class RAGService:
                 dims = ", ".join([f"{k}={v}mm" for k, v in profile.dimensions.items()])
                 
                 # Profil görseli ekle
-                image_url = f"http://localhost:8001/api/profile-image/{profile.code}"
+                image_url = f"{settings.backend_url}/api/profile-image/{profile.code}"
                 answer_parts.append(
                     f"\n**{profile_count}. {profile.code}** - {profile.category}\n"
                     f"![{profile.code}]({image_url})\n"
@@ -1405,7 +1406,7 @@ class RAGService:
                     customer = prof.get('customer', '')
                     mold_status = prof.get('mold_status', '')
                     
-                    image_url = f"http://localhost:8001/api/profile-image/{code}"
+                    image_url = f"{settings.backend_url}/api/profile-image/{code}"
                     answer_parts.append(f"\n**{i}. {code}**")
                     answer_parts.append(f"![{code}]({image_url})")
                     
@@ -1457,7 +1458,7 @@ class RAGService:
         explanation = profile.get('explanation', '')
         
         # Profil görseli
-        image_url = f"http://localhost:8001/api/profile-image/{code}"
+        image_url = f"{settings.backend_url}/api/profile-image/{code}"
         
         answer_parts = [
             f"**{code}** profili bulundu:\n",
@@ -1568,7 +1569,7 @@ class RAGService:
                 mold_status = profile.get('mold_status', '')
                 
                 # Profil görseli ekle
-                image_url = f"http://localhost:8001/api/profile-image/{code}"
+                image_url = f"{settings.backend_url}/api/profile-image/{code}"
                 answer_parts.append(f"\n**{i}. {code}**")
                 answer_parts.append(f"![{code}]({image_url})")
                 
@@ -1616,7 +1617,7 @@ class RAGService:
                 mold_status = profile.get('mold_status', '')
                 
                 # Profil görseli ekle
-                image_url = f"http://localhost:8001/api/profile-image/{code}"
+                image_url = f"{settings.backend_url}/api/profile-image/{code}"
                 answer_parts.append(f"\n**{i}. {code}**")
                 answer_parts.append(f"![{code}]({image_url})")
                 
@@ -1671,7 +1672,7 @@ class RAGService:
                 profile_categories = profile.get('categories', [])
                 
                 # Profil görseli ekle
-                image_url = f"http://localhost:8001/api/profile-image/{code}"
+                image_url = f"{settings.backend_url}/api/profile-image/{code}"
                 answer_parts.append(f"\n**{i}. {code}**")
                 answer_parts.append(f"![{code}]({image_url})")
                 
@@ -2046,7 +2047,7 @@ Kısa ve samimi cevaplar ver. Emoji kullanabilirsin ama abartma.
             system_line = f"Sistem: {system_name}\n" if system_name else ""
             
             # Profil görseli URL'i
-            image_url = f"http://localhost:8001/api/profile-image/{profile.code}"
+            image_url = f"{settings.backend_url}/api/profile-image/{profile.code}"
             
             context_parts.append(
                 f"{i}. **{profile.code}**\n"
