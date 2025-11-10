@@ -182,6 +182,10 @@ class LLMService:
             for i, (profile, score, reason) in enumerate(results[:5], 1):
                 result_parts.append(f"\n{i}. **{profile.code}**")
                 
+                # Add profile image as markdown (frontend will render it)
+                image_url = f"{settings.backend_url}/api/profile-image/{profile.code}"
+                result_parts.append(f"![{profile.code}]({image_url})")
+                
                 # Try to get additional details from catalog
                 catalog_profile = catalog_service.get_profile_by_no(profile.code)
                 
@@ -227,9 +231,6 @@ class LLMService:
                 if hasattr(profile, 'system') and profile.system:
                     result_parts.append(f"   - Sistem: {profile.system}")
                     profile_data["system"] = profile.system
-                
-                if hasattr(profile, 'image_url') and profile.image_url:
-                    result_parts.append(f"   - Görsel: {profile.image_url}")
                 
                 if reason:
                     result_parts.append(f"   - Eşleşme: {reason}")
