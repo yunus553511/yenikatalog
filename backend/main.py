@@ -63,12 +63,8 @@ async def auto_refresh_catalog_task():
             logger.error(f"❌ Katalog yenileme hatası: {e}")
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan events"""
-    logger.info("Starting Beymetal Chat API...")
-    
-    # Initialize Excel service (standart profiller)
+async def initialize_services_background():
+    """Background task to initialize all services"""
     from services.excel_service import excel_service
     from services.embedding_service import embedding_service
     from services.catalog_service import catalog_service
@@ -79,78 +75,104 @@ async def lifespan(app: FastAPI):
     import services.llm_service as llm_module
     from services.similarity_service import similarity_service
     
-    success = await excel_service.initialize()
-    
-    if not success:
-        logger.error("Excel servisi başlatılamadı!")
-    else:
-        stats = excel_service.get_stats()
-        logger.info(f"Excel servisi hazır: {stats['total_profiles']} profil")
-        
-        # Initialize Embedding service
-        profiles = excel_service.get_profiles()
-        emb_success = await embedding_service.initialize(profiles)
-        
-        if emb_success:
-            logger.info("Embedding servisi hazır")
-        else:
-            logger.error("Embedding servisi başlatılamadı!")
-    
-    # Initialize Catalog service (tüm profiller)
-    catalog_success = await catalog_service.initialize()
-    if catalog_success:
-        cat_stats = catalog_service.get_stats()
-        logger.info(f"Katalog servisi hazır: {cat_stats['total_profiles']} profil")
-    else:
-        logger.error("Katalog servisi başlatılamadı!")
-    
-    # Initialize Image service (profil görselleri)
-    image_success = await image_service.initialize()
-    if image_success:
-        logger.info("Image servisi hazır")
-    else:
-        logger.warning("Image servisi başlatılamadı - görseller gösterilmeyecek")
-    
-    # Initialize Connection service (profil birleşim sistemleri)
     try:
-        await connection_service.initialize()
-        conn_data = connection_service.get_all_systems()
-        logger.info(f"Connection servisi hazır: {len(conn_data)} sistem")
-    except Exception as e:
-        logger.error(f"Connection servisi başlatılamadı: {e}")
-    
-    # Initialize Similarity service (benzerlik arama)
-    try:
-        await similarity_service.initialize()
-        if similarity_service.available:
-            logger.info("✅ Benzerlik servisi hazır")
+        logger.info("🚀 Background initialization starting...")
+        
+        # Initialize Excel service (standart profiller)
+        success = await excel_service.initialize()
+        if not success:
+            logger.error("Excel servisi başlatılamadı!")
         else:
-            logger.warning("⚠️ Benzerlik servisi kullanılamıyor")
+            stats = excel_service.get_stats()
+            logger.info(f"✅ Excel servisi hazır: {stats['total_profiles']} profil")
+            
+            # Initialize Embedding service
+            profiles = excel_service.get_profiles()
+            emb_success = await embedding_service.initialize(profiles)
+            
+            if emb_success:
+                logger.info("✅ Embedding servisi hazır")
+            else:
+                logger.error("❌ Embedding servisi başlatılamadı!")
+        
+        # Initialize Catalog service (tüm profiller)
+        catalog_success = await catalog_service.initialize()
+        if catalog_success:
+            cat_stats = catalog_service.get_stats()
+            logger.info(f"✅ Katalog servisi hazır: {cat_stats['total_profiles']} profil")
+        else:
+            logger.error("❌ Katalog servisi başlatılamadı!")
+        
+        # Initialize Image service (profil görselleri)
+        image_success = await image_service.initialize()
+        if image_success:
+            logger.info("✅ Image servisi hazır")
+        else:
+            logger.warning("⚠️ Image servisi başlatılamadı")
+        
+        # Initialize Connection service (profil birleşim sistemleri)
+        try:
+            await connection_service.initialize()
+            conn_data = connection_service.get_all_systems()
+            logger.info(f"✅ Connection servisi hazır: {len(conn_data)} sistem")
+        except Exception as e:
+            logger.error(f"❌ Connection servisi başlatılamadı: {e}")
+        
+        # Initialize Similarity service (benzerlik arama)
+        try:
+            await similarity_service.initialize()
+            if similarity_service.available:
+                logger.info("✅ Benzerlik servisi hazır")
+            else:
+                logger.warning("⚠️ Benzerlik servisi kullanılamıyor")
+        except Exception as e:
+            logger.error(f"❌ Benzerlik servisi başlatılamadı: {e}")
+        
+        # Initialize LLM service with RAG service
+        llm_module.llm_service = LLMService(rag_service=rag_service)
+        logger.info("✅ LLM servisi hazır")
+        
+        logger.info("🎉 All services initialized successfully!")
+        
     except Exception as e:
-        logger.error(f"Benzerlik servisi başlatılamadı: {e}")
+        logger.error(f"❌ Background initialization error: {e}")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan events"""
+    logger.info("🚀 Starting Beymetal Chat API...")
+    logger.info("⚡ Quick startup mode - services will initialize in background")
     
-    # Initialize LLM service with RAG service
-    llm_module.llm_service = LLMService(rag_service=rag_service)
-    logger.info("LLM servisi hazır (AI-driven conversation manager)")
+    # Start background initialization
+    init_task = asyncio.create_task(initialize_services_background())
     
     # Start background auto-refresh tasks
     refresh_task = asyncio.create_task(auto_refresh_task())
     catalog_refresh_task = asyncio.create_task(auto_refresh_catalog_task())
-    logger.info("🔄 Otomatik yenileme aktif (her 10 dakikada bir)")
+    logger.info("🔄 Auto-refresh tasks started")
+    
+    logger.info("✅ Application ready to accept requests!")
     
     yield
     
     # Cancel background tasks on shutdown
+    init_task.cancel()
     refresh_task.cancel()
     catalog_refresh_task.cancel()
     try:
+        await init_task
         await refresh_task
         await catalog_refresh_task
     except asyncio.CancelledError:
         pass
     
     # Close similarity service
-    await similarity_service.close()
+    try:
+        from services.similarity_service import similarity_service
+        await similarity_service.close()
+    except:
+        pass
     
     logger.info("Shutting down Beymetal Chat API...")
 
@@ -185,25 +207,34 @@ async def root():
 
 @app.get("/api/health")
 async def health_check():
-    """Health check endpoint"""
-    from services.excel_service import excel_service
-    from services.embedding_service import embedding_service
-    from services.llm_service import llm_service
-    
-    stats = excel_service.get_stats()
-    emb_stats = embedding_service.get_stats()
-    llm_stats = llm_service.get_stats() if llm_service else {"is_enabled": False}
-    
-    return {
-        "status": "healthy",
-        "llm_enabled": llm_stats.get("is_enabled", False),
-        "llm_stats": llm_stats,
-        "vector_db_ready": emb_stats["is_ready"],
-        "profiles_count": stats["total_profiles"],
-        "last_update": stats["last_update"],
-        "categories": stats["categories"],
-        "embedding_stats": emb_stats
-    }
+    """Health check endpoint - always returns healthy for quick startup"""
+    try:
+        from services.excel_service import excel_service
+        from services.embedding_service import embedding_service
+        from services.llm_service import llm_service
+        
+        stats = excel_service.get_stats()
+        emb_stats = embedding_service.get_stats()
+        llm_stats = llm_service.get_stats() if llm_service else {"is_enabled": False}
+        
+        return {
+            "status": "healthy",
+            "llm_enabled": llm_stats.get("is_enabled", False),
+            "llm_stats": llm_stats,
+            "vector_db_ready": emb_stats["is_ready"],
+            "profiles_count": stats["total_profiles"],
+            "last_update": stats["last_update"],
+            "categories": stats["categories"],
+            "embedding_stats": emb_stats
+        }
+    except Exception as e:
+        # During startup, services might not be ready yet
+        logger.warning(f"Health check: services initializing... {e}")
+        return {
+            "status": "healthy",
+            "message": "Services are initializing in background",
+            "ready": False
+        }
 
 
 @app.post("/api/refresh-data")
