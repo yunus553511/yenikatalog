@@ -331,7 +331,7 @@ async function getAPIResponse(userMessage) {
     if (window.location.hostname === 'localhost') {
         API_URL = 'http://localhost:8002/api/chat';
     } else {
-        API_URL = 'https://beymetal-backend.onrender.com/api/chat';
+        API_URL = 'https://katalog-zvb2.onrender.com/api/chat';
     }
     
     try {
@@ -472,7 +472,7 @@ async function loadCategories() {
     if (window.location.hostname === 'localhost') {
         API_URL = 'http://localhost:8002';
     } else {
-        API_URL = 'https://beymetal-backend.onrender.com';
+        API_URL = 'https://katalog-zvb2.onrender.com';
     }
     
     try {
@@ -644,7 +644,7 @@ async function showCategoryProfiles(category) {
         if (window.location.hostname === 'localhost') {
             API_URL = `http://localhost:8002/api/catalog/category/${encodeURIComponent(category)}`;
         } else {
-            API_URL = `https://beymetal-backend.onrender.com/api/catalog/category/${encodeURIComponent(category)}`;
+            API_URL = `https://katalog-zvb2.onrender.com/api/catalog/category/${encodeURIComponent(category)}`;
         }
         
         const response = await fetch(API_URL);
@@ -822,7 +822,7 @@ class ConnectionSidebar {
             // API URL'ini belirle
             const apiUrl = window.location.hostname === 'localhost' 
                 ? 'http://localhost:8002' 
-                : 'https://beymetal-backend.onrender.com';
+                : 'https://katalog-zvb2.onrender.com';
             
             const response = await fetch(`${apiUrl}/api/connections/systems`);
             const data = await response.json();

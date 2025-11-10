@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     # Application Configuration  
     app_host: str = "0.0.0.0"
     app_port: int = 8004
-    cors_origins: str = "http://localhost:3000,http://localhost:4000,http://localhost:8000,http://localhost:8080"
+    cors_origins: str = "http://localhost:3000,http://localhost:4000,http://localhost:8000,http://localhost:8080,https://katalog-frontend.onrender.com"
     
     # Embedding Configuration
     embedding_model: str = "paraphrase-multilingual-MiniLM-L12-v2"
